@@ -6,13 +6,12 @@
 #include <string.h>
 
 #define PORT 8080
+#define CHUNKSIZE 1024
 
 int main(int argc, char const *argv[]) {
     // Open socket
-    int sock = 0, valread;
+    int sock;
     struct sockaddr_in serv_addr;
-    char *hello = "Hello from client";
-    char buffer[1024] = {0};
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         printf("\n Socket creation error \n");
         return -1;
@@ -40,19 +39,14 @@ int main(int argc, char const *argv[]) {
         perror("Error while opening the file.\n");
         exit(EXIT_FAILURE);
     } else {
-        unsigned char file_buffer[1024];
-        int i = 0;
-        while (fread(file_buffer, sizeof(file_buffer), 1, input) > 0 && i < 10) {
-            printf("Still reading file %d\n", i);
-            send(sock, file_buffer, sizeof(file_buffer), 0);
-            i++;
+        unsigned char file_buffer[CHUNKSIZE];
+        int read, sent, sent_total = 0;
+        while ((read = fread(file_buffer, 1, CHUNKSIZE, input)) != 0) {
+            sent = send(sock, file_buffer, read, 0);
+            sent_total += sent;
         }
+        printf("Total bytes sent: %d bytes\n", sent_total);
         fclose(input);
     }
-
-    printf("Message sent\n");
-    read(sock, buffer, 1024);
-
-    printf("%s\n", buffer);
     return 0;
 }

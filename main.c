@@ -45,7 +45,7 @@ int main(int argc, char const *argv[]) {
 
             // Open file
 
-            printf("Path: |%s|\n", path);
+            printf("Path: %s\n", path);
             FILE *input = fopen(path, "rb");
             if (input == NULL) {
                 perror("Error while opening the file");

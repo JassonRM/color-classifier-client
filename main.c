@@ -5,10 +5,9 @@
 #include <unistd.h>
 #include <string.h>
 
-#define PORT 8080
 #define CHUNKSIZE 1024
 
-int connect_socket(char* ip_address){
+int connect_socket(const char* ip_address, int port){
     // Open socket
     int sock;
     struct sockaddr_in serv_addr;
@@ -18,7 +17,7 @@ int connect_socket(char* ip_address){
     }
 
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(port);
 
     // Convert IPv4 and IPv6 addresses from text to binary form
     if (inet_pton(AF_INET, ip_address, &serv_addr.sin_addr) <= 0) {
@@ -34,12 +33,14 @@ int connect_socket(char* ip_address){
 
 int main(int argc, char const *argv[]) {
     printf("Welcome to the image color classifier!\n");
-    if(argc == 2) {
+    if(argc == 3) {
         int socket;
         while (1) {
             printf("Please write the path to the image:\n");
-            char path[100];
-            gets(path);
+
+            char *path = NULL;
+            size_t len = 0;
+            getline(&path, &len, stdin);
 
             // Open file
 
@@ -49,7 +50,7 @@ int main(int argc, char const *argv[]) {
                 perror("Error while opening the file.\n");
                 exit(EXIT_FAILURE);
             } else {
-                socket = connect_socket(argv[1]);
+                socket = connect_socket(argv[1], atoi(argv[2]));
                 unsigned char file_buffer[CHUNKSIZE];
                 int read, sent, sent_total = 0;
                 sent = send(socket, path, 30, 0);
@@ -71,7 +72,7 @@ int main(int argc, char const *argv[]) {
         }
 
     } else{
-        printf("One parameter required: server_ip_address");
+        printf("Two parameters required: server_ip_address server_ip_port");
         return 1;
     }
     return 0;

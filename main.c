@@ -41,13 +41,14 @@ int main(int argc, char const *argv[]) {
             char *path = NULL;
             size_t len = 0;
             getline(&path, &len, stdin);
+            path[strlen(path) - 1] = 0;
 
             // Open file
 
-            printf("Path: %s\n", path);
+            printf("Path: |%s|\n", path);
             FILE *input = fopen(path, "rb");
             if (input == NULL) {
-                perror("Error while opening the file.\n");
+                perror("Error while opening the file");
                 exit(EXIT_FAILURE);
             } else {
                 socket = connect_socket(argv[1], atoi(argv[2]));
